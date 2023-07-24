@@ -1,7 +1,6 @@
 import tkintermapview
 import os
-from view import MapViewTileServers as TileServers
-
+from model import MapViewTileServers as TileServers
 
 # This scripts creates a database with offline tiles.
 
