@@ -2,7 +2,7 @@ import tkinter as tk
 import tkinter.ttk as ttk
 import typing
 
-from view.frames.BasicFrame import BasicFrame
+from view.frames.BasicFrame import BasicFrame, RowFrame, RowFrameRow
 
 
 def grid_position(index: int):
@@ -38,6 +38,9 @@ class DroneGridFrame(BasicFrame):
         self.drone_grid = dict()
         self.grid_cols, self.grid_rows = self.grid(self.frame)
 
+        # Blank drone add button callback event (PLACEHOLDER LAMBDA)
+        self.blank_drone_callback = lambda: print('Hi')
+
         # Init grid empty cells
         self.init_empty_grid()
 
@@ -48,7 +51,7 @@ class DroneGridFrame(BasicFrame):
 
     def init_empty_grid(self):
         for nn in range(self.grid_cols*self.grid_rows):
-            self.pack_cell(BasicDroneCell(self.frame, nn, callback=lambda: print('Hi')), grid_position(nn))
+            self.pack_cell(BlankDroneCell(self.frame, nn, callback=self.blank_drone_callback), grid_position(nn))
 
     def pack_cell(self, drone_cell, cell_index: typing.Tuple[int, int]):
         grid_key = f'{cell_index[0]}{cell_index[1]}'
@@ -71,34 +74,85 @@ class DroneGridFrame(BasicFrame):
                     self.pack_cell(drone_cell, cell_index)
 
 
-# BASIC DRONE CELL
-class BasicDroneCell(BasicFrame):
-    def __init__(self, master, drone_id: int, empty=True, callback: typing.Callable = None):
+# # DRONE CELLS
+class DroneCell(RowFrame):
+    def __init__(self, master, drone_id: int):
+        super().__init__(master, label=f'DRONE #{drone_id}')
+
+        self.drone_id = drone_id
+
+        self.add_options_row(DroneNameRow(self.frame))
+
+
+# GLOBAL DRONE CELL
+class GlobalDroneCell(DroneCell):
+    def __init__(self, master, drone_id: int):
+        super().__init__(master, drone_id)
+
+        self.add_options_row(GlobalDroneCellRow(self.frame))
+
+        self.pack_rows()
+
+
+# LOCAL DRONE CELL
+class LocalDroneCell(DroneCell):
+    def __init__(self, master, drone_id: int):
+        super().__init__(master, drone_id)
+
+        self.add_options_row(LocalDroneIpEntryRow(self.frame))
+
+        self.pack_rows()
+
+
+# DIRECT DRONE CELL
+class DirectDroneCell(DroneCell):
+    def __init__(self, master, drone_id: int):
+        super().__init__(master, drone_id)
+
+        self.add_options_row(DirectDroneComRow(self.frame))
+
+        self.pack_rows()
+
+
+# BLANK DRONE CELL
+class BlankDroneCell(BasicFrame):
+    def __init__(self, master, drone_id: int, callback: typing.Callable = None):
         super().__init__(master, no_grid=True, label=f'DRONE #{drone_id}')
-        self.empty = empty
         self.callback = callback
 
-        if empty:
-            self.add_drone_label = ttk.Label(self.frame, text='⊕', anchor='center', font=('', 52))
-            self.add_drone_label.bind('<Button-1>', self.on_add_drone_click)
-            self.pack_widget(self.add_drone_label)
+        self.add_drone_label = ttk.Label(self.frame, text='⊕', anchor='center', font=('', 52))
+        self.add_drone_label.bind('<Button-1>', self.on_add_drone_click)
+        self.pack_widget(self.add_drone_label)
 
     def on_add_drone_click(self, event=None):
         self.callback()
 
 
-# GLOBAL DRONE CELL
-class GlobalDroneCell(BasicDroneCell):
-    def __init__(self, master, drone_id: int):
-        super().__init__(master, drone_id, empty=False)
+# BASIC DRONE CELL ROW
+class DroneNameRow(RowFrameRow):
+    def __init__(self, master):
+        super().__init__(master)
+
+        self.name_entry_var = tk.StringVar()
+
+        self.name_entry_label = ttk.Label(self.frame, text='NAME:')
+        self.pack_widget(self.name_entry_label, 'left', 2)
+
+        self.name_entry = ttk.Entry(self.frame, textvariable=self.name_entry_var)
+        self.pack_widget(self.name_entry, 'right', 2)
+
+
+# GLOBAL DRONE CELL ROWS
+class GlobalDroneCellRow(RowFrameRow):
+    def __init__(self, master):
+        super().__init__(master)
 
 
 # LOCAL DRONE CELL
-class LocalDroneCell(BasicDroneCell):
-    def __init__(self, master, drone_id: int):
-        super().__init__(master, drone_id, empty=False)
+class LocalDroneIpEntryRow(RowFrameRow):
+    def __init__(self, master):
+        super().__init__(master)
 
-        # IP Entry
         self.ip_entry_var = tk.StringVar()
 
         self.ip_entry_label = ttk.Label(self.frame, text='IP ADDRESS:')
@@ -109,11 +163,10 @@ class LocalDroneCell(BasicDroneCell):
 
 
 # DIRECT DRONE CELL
-class DirectDroneCell(BasicDroneCell):
-    def __init__(self, master, drone_id: int):
-        super().__init__(master, drone_id, empty=False)
+class DirectDroneComRow(RowFrameRow):
+    def __init__(self, master):
+        super().__init__(master)
 
-        # COM Entry
         self.com_entry_var = tk.IntVar()
 
         self.com_entry_label = ttk.Label(self.frame, text='COM PORT NUMBER:')
