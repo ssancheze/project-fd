@@ -83,6 +83,35 @@ class BasicFrame:
             self.frame.pack(expand=True, fill='both')
 
 
+class RowFrameRow(BasicFrame):
+    def __init__(self, master=None):
+        super().__init__(master, no_grid=True)
+
+        self.frame.configure(relief='groove', borderwidth=3)
+
+
+class RowFrame(BasicFrame):
+    def __init__(self, master=None, rows=1, label: str = None):
+        super().__init__(master, no_grid=True, label=label)
+
+        self.rows = rows
+        self._options_rows_list: typing.List[RowFrameRow] = list()
+
+    @property
+    def options_rows_list(self):
+        return self._options_rows_list
+
+    def add_options_row(self, mode_options_row: RowFrameRow):
+        if len(self._options_rows_list) > self.rows:
+            raise IndexError(f'self.options_rows_list try to exceed maximum length')
+        else:
+            self._options_rows_list.append(mode_options_row)
+
+    def pack_rows(self):
+        for row in self.options_rows_list:
+            row.pack_frame(side='top', fill='x')
+
+
 if __name__ == '__main__':
     tk = MyTk.Window()
     tk.config()
