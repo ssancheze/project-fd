@@ -39,7 +39,7 @@ class DroneGridFrame(BasicFrame):
         self.grid_cols, self.grid_rows = self.grid(self.frame)
 
         # Blank drone add button callback event (PLACEHOLDER LAMBDA)
-        self.blank_drone_callback = lambda: print('Hi')
+        self.blank_drone_callback: typing.Callable = lambda: print('Hi')
 
         # Init grid empty cells
         self.init_empty_grid()
