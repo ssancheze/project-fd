@@ -36,7 +36,7 @@ class Window:
         Configures the window's properties according to the file 'config.py'
         :return: None
         """
-        config_keys = [key for key in config.__dict__ if '__' not in key]
+        config_keys = [key for key in config.__dict__ if '__' not in key and 'win_' in key]
         for key in config_keys:
             method = getattr(WindowConfigMethods, key)
             value = getattr(config, key)
