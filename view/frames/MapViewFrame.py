@@ -37,13 +37,64 @@ class MapViewFrame(BasicFrame):
         self.tile_set_dropdown.pack()
 
         # Offline mode checkbutton
+        # TODO: Add offline mode option in config.py and load map accordingly
         self.offline_checkbutton_var = tk.BooleanVar(value=False)
         self.offline_checkbutton = ttk.Checkbutton(self.controls_frame, text='Offline',
                                                    variable=self.offline_checkbutton_var,
                                                    command=self.on_offline_checkbutton_change)
-        self.offline_checkbutton.pack()
+
+        # Inclusion / Exclusion radios
+        self.poly_confirm_var = tk.BooleanVar(self.controls_frame, value=False)
+
+        self.poly_confirm_exclusion_radio = ttk.Radiobutton(self.controls_frame, text='Exclusion zone',
+                                                            variable=self.poly_confirm_var, value=False)
+        self.pack_widget(self.poly_confirm_exclusion_radio, 'left', 2)
+
+        self.poly_confirm_inclusion_radio = ttk.Radiobutton(self.controls_frame, text='Inclusion zone',
+                                                            variable=self.poly_confirm_var, value=True)
+        self.pack_widget(self.poly_confirm_inclusion_radio, 'left', 2)
+
+        # Create polygon button
+        self.poly_confirm_button = ttk.Button(self.controls_frame, text='Create polygon',
+                                              command=self.poly_confirm_button_click)
+        self.pack_widget(self.poly_confirm_button, 'left', 2)
 
         self.pack_frame()
+
+        # Delete polygon button
+        self.poly_delete_button = ttk.Button(self.controls_frame, text='Delete polygon',
+                                             command=self.poly_delete_button_click)
+        self.pack_widget(self.poly_delete_button, 'left', 2)
+
+        # Save map button
+        self.save_map_button = ttk.Button(self.controls_frame, text='Save map',
+                                          command=self.save_map_button_click)
+        self.pack_widget(self.save_map_button, 'right', 2)
+
+        # Load map button
+        self.load_map_button = ttk.Button(self.controls_frame, text='Load map',
+                                          command=self.load_map_button_click)
+        self.pack_widget(self.load_map_button, 'right', 2)
+
+        # Clear map button
+        self.clear_map_button = ttk.Button(self.controls_frame, text='Clear map',
+                                           command=self.clear_map_button_click)
+        self.pack_widget(self.clear_map_button, 'right', 2)
+
+    def poly_confirm_button_click(self):
+        pass
+
+    def poly_delete_button_click(self):
+        pass
+
+    def save_map_button_click(self):
+        pass
+
+    def load_map_button_click(self):
+        pass
+
+    def clear_map_button_click(self):
+        pass
 
     def on_tile_set_change(self, event=None):
         set_tile_args = Tiles.method_get_tile_server(self.dropdown_var.get())
