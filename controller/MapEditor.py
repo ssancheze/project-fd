@@ -1,5 +1,3 @@
-import math
-
 import tkintermapview
 import typing
 import numpy as np

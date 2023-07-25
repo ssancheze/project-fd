@@ -4,7 +4,7 @@ from view.frames.BasicFrame import BasicFrame
 import tkintermapview
 import tkinter.ttk as ttk
 import tkinter as tk
-from view import MapViewTileServers as Tiles
+from model import MapViewTileServers as Tiles
 
 MAP_VIEW_DATABASE_PATH = os.path.abspath('..\\maps\\offline_tiles_eetac.db')
 
