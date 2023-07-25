@@ -1,15 +1,15 @@
 import typing
 
 
-def windowed_resolution(self, dimensions: typing.Tuple[int, int]):
+def win_windowed_resolution(self, dimensions: typing.Tuple[int, int]):
     self.tk.geometry(f'{dimensions[0]}x{dimensions[1]}')
 
 
-def borderless(self, value: bool) -> None:
+def win_borderless(self, value: bool) -> None:
     self.tk.overrideredirect(value)
 
 
-def resizable(self, option: str) -> None:
+def win_resizable(self, option: str) -> None:
     if 'h' in option and 'v' in option:
         self.tk.resizable(True, True)
     elif 'h' in option:
@@ -20,7 +20,7 @@ def resizable(self, option: str) -> None:
         self.tk.resizable(False, False)
 
 
-def fullscreen(self, value: bool):
+def win_fullscreen(self, value: bool):
     def _toggle_fullscreen(event=None):
         self.state = not self.state  # Just toggling the boolean
         self.tk.attributes("-fullscreen", self.state)
