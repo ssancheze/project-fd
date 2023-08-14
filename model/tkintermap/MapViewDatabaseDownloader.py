@@ -1,6 +1,7 @@
 import tkintermapview
 import os
-from model import MapViewTileServers as TileServers
+from model.tkintermap import MapViewTileServers as TileServers
+from definitions import MAPS_DIR
 
 # This scripts creates a database with offline tiles.
 
@@ -11,12 +12,10 @@ zoom_min = 17
 zoom_max = 20
 
 # specify path and name of the database
-file_directory = os.path.abspath(__file__)
-script_directory = os.path.dirname(file_directory)+"/maps"
-database_path = os.path.join(script_directory, "offline_tiles_eetac.db")
+database_path = os.path.join(MAPS_DIR, "offline_tiles_eetac_gsat.db")
 
 # specify tile server from where tiles are downloaded
-tile_server = TileServers.gmap
+tile_server = TileServers.gsat
 
 # create OfflineLoader instance
 loader = tkintermapview.OfflineLoader(path=database_path, tile_server=tile_server)
