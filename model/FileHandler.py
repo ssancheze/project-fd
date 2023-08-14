@@ -128,5 +128,5 @@ class FileWriter(FileOpener):
 
 
 if __name__ == '__main__':
-    my_handler = FileHandler('../dev/fence_test4.waypoints', separator='\t')
+    my_handler = FileHandler('../fences/fence_test4.waypoints', separator='\t')
     print(my_handler.read(0))
