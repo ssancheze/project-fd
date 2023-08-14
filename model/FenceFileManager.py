@@ -166,8 +166,8 @@ if __name__ == '__main__':
         my_manager.file_handler.read(3)
 
     def main2():
-        lines1 = open('../dev/fence_test5 - copia.waypoints', 'r').read()
-        lines2 = open('../dev/fence_test5.waypoints', 'r').read()
+        lines1 = open('../fences/fence_test5 - copia.waypoints', 'r').read()
+        lines2 = open('../fences/fence_test5.waypoints', 'r').read()
 
     main()
     print(0)
