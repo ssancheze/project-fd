@@ -3,8 +3,31 @@ import tkinter as tk
 import tkinter.ttk as ttk
 
 from model.tkintermap import MapViewTileServers as Tiles
-from view.frames.BasicFrame import BasicFrame
-from controller.MapController import MapViewFrameController
+from view.frames.BasicFrame import BasicFrame, FileDialogFrame
+from controller.MapViewController import MapViewFrameController
+from definitions import FENCES_DIR
+
+
+POLYGON_IDLE_KWARGS = {
+    'fill_color': None,
+    'outline_color': '#F7B801',
+    'border_width': 2,
+
+}
+
+POLYGON_INCLUSION_KWARGS = {
+    'fill_color': '#4A5859',
+    'outline_color': '#F4D6CC',
+    'border_width': 2,
+
+}
+
+POLYGON_EXCLUSION_KWARGS = {
+    'fill_color': '#C83E4D',
+    'outline_color': '#DD1C1A',
+    'border_width': 2,
+
+}
 
 
 class MapFenceControlsFrame(BasicFrame):
@@ -13,13 +36,13 @@ class MapFenceControlsFrame(BasicFrame):
 
         self.map_view = map_view
         self.controller = controller
+        self.file_dialog = FileDialogFrame(self.frame)
 
-        # POLYGON MOUSE EVENTS
-
-        # Control variable
+        # Control variables
         self.drawing_polygon = False
 
         # Start polygon mouse event
+        self.map_view.add_right_click_menu_command('Set Home Here', self.mouse_set_home_click, pass_coords=True)
         self.map_view.add_right_click_menu_command('Start Polygon Here', self.mouse_start_poly_click, pass_coords=True)
         self.map_view.add_right_click_menu_command('Close Polygon', self.mouse_close_poly_click, pass_coords=False)
         self.map_view.add_right_click_menu_command('Cancel Polygon', self.mouse_cancel_poly_click, pass_coords=False)
@@ -78,29 +101,61 @@ class MapFenceControlsFrame(BasicFrame):
         self.map_view.set_zoom(self.map_view.max_zoom)
 
     def draw_update(self):
+        # Delete everything
         self.map_view.delete_all_marker()
         self.map_view.delete_all_path()
         self.map_view.delete_all_polygon()
 
+        # Then re-draw again
+        self.draw_zones()
+        self.draw_home()
+        self.draw_idle_polygon()
+
+    def draw_zones(self):
+        _zones = self.controller.get_zones()
+        if _zones:
+            for ii_zone in _zones:
+                _zone_coords = [(jj_vertex.lat, jj_vertex.lon) for jj_vertex in ii_zone.vertices]
+                if ii_zone.type is False:
+                    _zone_kwargs = POLYGON_EXCLUSION_KWARGS
+                else:
+                    _zone_kwargs = POLYGON_INCLUSION_KWARGS
+                self.map_view.set_polygon(_zone_coords, **_zone_kwargs)
+
+    def draw_idle_polygon(self):
         _polygon = self.controller.get_idle_polygon()
+
         if _polygon is not None:
+            _polygon_vertices = _polygon.vertices
 
-            _vertices = _polygon.vertices
-            _coords_list = [(ii_vertex.lat, ii_vertex.lon) for ii_vertex in _vertices]
-            if not _polygon.closed:
-                # If not closed, draw points and lines between
-                if _vertices is not None:
-                    for index, ii_vertex in enumerate(_vertices):
-                        self.map_view.set_marker(ii_vertex.lat, ii_vertex.lon, text=str(index))
+            if _polygon_vertices:
+                if _polygon.closed:
+                    # If close, draw full polygon with idle palette (kwargs)
+                    _polygon_coords = [(ii_vertex.lat, ii_vertex.lon) for ii_vertex in _polygon_vertices]
+                    self.map_view.set_polygon(_polygon_coords, **POLYGON_IDLE_KWARGS)
 
-                    if len(_coords_list) > 1:
-                        self.map_view.set_path(_coords_list)
-            else:
-                # If its closed, draw polygon
-                self.map_view.set_polygon(_coords_list)
+                else:
+                    # If not closed, draw points and lines between
+                    if _polygon_vertices is not None:
+                        for index, ii_vertex in enumerate(_polygon_vertices):
+                            self.map_view.set_marker(ii_vertex.lat, ii_vertex.lon, text=str(index))
+
+                        _polygon_coords = [(ii_vertex.lat, ii_vertex.lon) for ii_vertex in _polygon_vertices]
+
+                        if len(_polygon_coords) > 1:
+                            self.map_view.set_path(_polygon_coords)
+
+    def draw_home(self):
+        _home = self.controller.get_home()
+        if _home is not None:
+            self.map_view.set_marker(_home.lat, _home.lon, text='HOME')
 
     def mouse_left_click_callback(self, coords):
         self.controller.polygon_add_vertex(coords)
+        self.draw_update()
+
+    def mouse_set_home_click(self, coords):
+        self.controller.set_home(coords)
         self.draw_update()
 
     def mouse_start_poly_click(self, coords):
@@ -117,18 +172,27 @@ class MapFenceControlsFrame(BasicFrame):
 
     def poly_confirm_button_click(self):
         self.controller.polygon_confirm(self.poly_confirm_var.get())
+        self.draw_update()
 
     def poly_delete_button_click(self):
         self.controller.polygon_delete()
+        self.draw_update()
 
     def save_map_button_click(self):
-        self.controller.save_map()
+        if self.controller.ask_save_map():
+            self.file_dialog.ask_save_waypoints(FENCES_DIR)
+            self.controller.save_map(self.file_dialog.save_filename)
 
     def load_map_button_click(self):
-        self.controller.load_map()
+        if self.controller.ask_load_map():
+            self.controller.clear_map()
+            self.file_dialog.ask_open_waypoints(FENCES_DIR)
+            self.controller.load_map(self.file_dialog.open_filename)
+            self.draw_update()
 
     def clear_map_button_click(self):
         self.controller.clear_map()
+        self.draw_update()
 
     def on_tile_set_change(self, event=None):
         # event = selected string
