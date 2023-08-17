@@ -100,7 +100,8 @@ class FenceEditor:
             return False
 
         for ii_index, ii_vertex in enumerate(zone.vertices):
-            self._write_waypoint(ii_vertex.tuple, _file_index + ii_index, zone.count, ii_index, zone.type, overwrite_line)
+            self._write_waypoint(ii_vertex.tuple, _file_index + ii_index, zone.count, ii_index, zone.type,
+                                 overwrite_line)
 
     def write_zones(self, zones: typing.List[FenceZone]):
         for _ii_zone in zones:
@@ -131,9 +132,9 @@ class FenceEditor:
         # TODO: Move if needed elsewhere
         def force_int(value: str):
             try:
-                _int = int(_ii_item.params[-1])
+                _int = int(value)
             except ValueError:
-                _int = float(_ii_item.params[-1])
+                _int = float(value)
                 _int = int(_int)
             return _int
 
