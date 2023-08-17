@@ -23,7 +23,7 @@ class MapViewFrame(BasicFrame):
         else:
             self.map_view = tkintermapview.TkinterMapView(master=self.frame, corner_radius=60)
 
-        # TODO: Remove position placeholder
+        # Set default position
         self.map_view.set_position(*EETAC_COORDINATES)
 
         # TODO: Lock zoom
