@@ -1,7 +1,7 @@
 from __future__ import annotations
 import typing
 
-from model.fileEditor import FileEditor
+from model.FileEditor import FileEditor
 from model.FenceClasses import FenceZone, Vertex, MissionItem, MavlinkParameters
 
 
