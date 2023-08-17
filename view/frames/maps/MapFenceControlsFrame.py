@@ -2,8 +2,8 @@ import tkintermapview
 import tkinter as tk
 import tkinter.ttk as ttk
 
-from model.tkintermap import MapViewTileServers as Tiles
-from view.frames.BasicFrame import BasicFrame, FileDialogFrame
+from view.frames.BasicFrame import FileDialogFrame
+from dev.MapBasicControlsFrame import MapBasicControlsFrame
 from controller.MapViewController import MapViewFrameController
 from definitions import FENCES_DIR
 
@@ -30,13 +30,9 @@ POLYGON_EXCLUSION_KWARGS = {
 }
 
 
-class MapFenceControlsFrame(BasicFrame):
+class MapFenceControlsFrame(MapBasicControlsFrame):
     def __init__(self, master, map_view: tkintermapview.TkinterMapView, controller: MapViewFrameController):
-        super().__init__(master, no_grid=True, navigation_buttons=False, label='MAP CONTROLS')
-
-        self.map_view = map_view
-        self.controller = controller
-        self.file_dialog = FileDialogFrame(self.frame)
+        MapBasicControlsFrame.__init__(self, master, map_view, controller)
 
         # Control variables
         self.drawing_polygon = False
@@ -47,15 +43,6 @@ class MapFenceControlsFrame(BasicFrame):
         self.map_view.add_right_click_menu_command('Close Polygon', self.mouse_close_poly_click, pass_coords=False)
         self.map_view.add_right_click_menu_command('Cancel Polygon', self.mouse_cancel_poly_click, pass_coords=False)
         self.map_view.add_left_click_map_command(self.mouse_left_click_callback)
-
-        # Tile set dropdown
-        dropdown_vals = [key for key in Tiles.__dict__ if
-                         '__' not in key and '_zoom' not in key and 'method' not in key]
-        self.dropdown_var = tk.StringVar(value=dropdown_vals[0])
-        self.tile_set_dropdown = ttk.OptionMenu(self.frame, variable=self.dropdown_var,
-                                                command=self.on_tile_set_change)
-        self.tile_set_dropdown.set_menu('SELECT TILE SET', *dropdown_vals)
-        self.tile_set_dropdown.pack()
 
         # TODO: Enable dropdown if more tiles are present
         # self.tile_set_dropdown.config(state=tk.DISABLED)
@@ -80,25 +67,6 @@ class MapFenceControlsFrame(BasicFrame):
         self.poly_delete_button = ttk.Button(self.frame, text='Delete Polygon',
                                              command=self.poly_delete_button_click)
         self.pack_widget(self.poly_delete_button, 'left', 2)
-
-        # Save maps button
-        self.save_map_button = ttk.Button(self.frame, text='Save Map As...',
-                                          command=self.save_map_button_click)
-        self.pack_widget(self.save_map_button, 'right', 2)
-
-        # Load maps button
-        self.load_map_button = ttk.Button(self.frame, text='Load Map...',
-                                          command=self.load_map_button_click)
-        self.pack_widget(self.load_map_button, 'right', 2)
-
-        # Clear maps button
-        self.clear_map_button = ttk.Button(self.frame, text='Clear Map',
-                                           command=self.clear_map_button_click)
-        self.pack_widget(self.clear_map_button, 'right', 2)
-
-    def set_tile_server(self, tile_server: str, max_zoom: int):
-        self.map_view.set_tile_server(tile_server=tile_server, max_zoom=max_zoom)
-        self.map_view.set_zoom(self.map_view.max_zoom)
 
     def draw_update(self):
         # Delete everything
@@ -193,8 +161,3 @@ class MapFenceControlsFrame(BasicFrame):
     def clear_map_button_click(self):
         self.controller.clear_map()
         self.draw_update()
-
-    def on_tile_set_change(self, event=None):
-        # event = selected string
-        self.controller.change_tile_set(event)
-        self.set_tile_server(*self.controller.get_tile_set())
