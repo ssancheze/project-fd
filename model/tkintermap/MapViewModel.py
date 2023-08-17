@@ -3,6 +3,7 @@ import typing
 
 
 from model.tkintermap import MapViewTileServers
+from model.tkintermap.MapViewElevationRequest import get_elevation
 from model.FenceClasses import FenceZone, Vertex
 from model.FenceEditor import FenceEditor
 
@@ -97,7 +98,9 @@ class MapViewFrameModel:
         self._file_manager = FenceEditor(save_dir)
         self._file_manager.file_editor.clear_file()
         self._file_manager.write_header()
-        self._file_manager.set_home(*self._home.coordinates)
+        _home_lat, _home_lon = self._home.tuple
+        _home_elevation = get_elevation(_home_lat, _home_lon)
+        self._file_manager.set_home(_home_lat, _home_lon, _home_elevation)
         self._file_manager.write_home()
         self._file_manager.write_zones(self._zones)
         return True
