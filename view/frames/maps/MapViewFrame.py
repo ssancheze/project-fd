@@ -6,7 +6,7 @@ import config
 from model.tkintermap import MapViewTileServers as Tiles
 from definitions import MAPS_DIR
 from view.frames.maps.MapFenceControlsFrame import MapFenceControlsFrame
-from controller.MapController import MapViewFrameController
+from controller.MapViewController import MapViewFrameController
 
 MAP_VIEW_DATABASE_PATH = os.path.join(MAPS_DIR, 'offline_tiles_eetac_gsat.db')
 
@@ -45,7 +45,7 @@ class MapViewFrame(BasicFrame):
 
 if __name__ == '__main__':
     from view import MyTk
-    from model.tkintermap.MapModel import MapViewFrameModel
+    from model.tkintermap.MapViewModel import MapViewFrameModel
 
     def main():
         win = MyTk.Window()
