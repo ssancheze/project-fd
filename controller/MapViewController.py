@@ -1,5 +1,3 @@
-import tkintermapview
-
 from model.tkintermap.MapViewModel import MapViewFrameModel
 
 
