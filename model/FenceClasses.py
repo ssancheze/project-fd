@@ -89,6 +89,10 @@ class Vertex:
     def tuple(self):
         return self._lat, self._lon
 
+    @property
+    def coordinates(self):
+        return self._lat, self._lon, self._elevation
+
 
 class MissionItem:
     def __init__(self, fromstr: typing.Union[str, None] = None,
