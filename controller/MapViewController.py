@@ -1,6 +1,6 @@
 import tkintermapview
 
-from model.tkintermap.MapModel import MapViewFrameModel
+from model.tkintermap.MapViewModel import MapViewFrameModel
 
 
 class MapViewFrameController:
@@ -19,6 +19,16 @@ class MapViewFrameController:
 
     def get_idle_polygon(self):
         return self.model.get_idle_polygon()
+
+    def get_zones(self):
+        return self.model.zones
+
+    def get_home(self):
+        return self.model.home
+
+    def set_home(self, coords):
+        if not self._drawing_polygon:
+            self.model.set_home(coords)
 
     def start_polygon(self, coords):
         if not self._drawing_polygon and not self.model.idle_polygon:
@@ -48,22 +58,40 @@ class MapViewFrameController:
 
     def polygon_confirm(self, zone_type: bool):
         if not self._drawing_polygon:
-            self.model.add_polygon(zone_type)
-            print('Polygon Confirmed')
+            if self.model.add_polygon(zone_type):
+                print('Polygon Confirmed')
 
     def polygon_delete(self):
         if not self._drawing_polygon:
-            self.model.del_polygon()
-            print('Polygon Deleted')
+            if self.model.idle_polygon:
+                self.model.del_polygon()
+                print('Polygon Deleted')
 
-    def save_map(self):
-        pass
+    def ask_save_map(self):
+        if not self._drawing_polygon:
+            if not self.model.idle_polygon:
+                if self.model.home is not None:
+                    if self.model.zones:
+                        return True
+        return False
 
-    def load_map(self):
-        pass
+    def save_map(self, save_dir: str):
+        if self.model.save_to_file(save_dir):
+            print('Map Saved Successfully')
+
+    def ask_load_map(self):
+        if not self._drawing_polygon:
+            return True
+        return False
+
+    def load_map(self, open_dir):
+        if self.model.open_file(open_dir):
+            print('Map Loaded Successfully')
 
     def clear_map(self):
-        pass
+        if not self._drawing_polygon:
+            self.model.clear_all()
+            print('Map Cleared')
 
     def change_tile_set(self, selected_tile):
         self.model.set_tile_server(selected_tile)
