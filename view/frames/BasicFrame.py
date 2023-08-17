@@ -2,6 +2,7 @@ import typing
 
 import view.MyTk as MyTk
 import tkinter.ttk as ttk
+import tkinter.filedialog as tkfd
 
 
 def _grid(tk_self, rows: int = None, cols: int = None):
@@ -110,6 +111,36 @@ class RowFrame(BasicFrame):
     def pack_rows(self):
         for row in self.options_rows_list:
             row.pack_frame(side='top', fill='x')
+
+
+class FileDialogFrame:
+    FILETYPE_ALL = ('All files', '*.*')
+    FILETYPE_WAYPOINTS = ('Waypoint files', '*.waypoints')
+    FILE_EXTENSION_WAYPOINTS = 'waypoints'
+
+    def __init__(self, master=None):
+        self.master = master
+        self._open_filename: typing.Optional[str] = None
+        self._save_filename: typing.Optional[str] = None
+
+    @property
+    def open_filename(self):
+        return self._open_filename
+
+    @property
+    def save_filename(self):
+        return self._save_filename
+
+    def ask_open_waypoints(self, open_dir: str):
+        self._open_filename = tkfd.askopenfilename(parent=self.master,
+                                                   filetypes=(self.FILETYPE_WAYPOINTS, self.FILETYPE_ALL),
+                                                   initialdir=open_dir)
+
+    def ask_save_waypoints(self, save_dir: str):
+        self._save_filename = tkfd.asksaveasfilename(parent=self.master,
+                                                     filetypes=(self.FILETYPE_WAYPOINTS, self.FILETYPE_ALL),
+                                                     initialdir=save_dir,
+                                                     defaultextension=self.FILE_EXTENSION_WAYPOINTS)
 
 
 if __name__ == '__main__':
