@@ -1,8 +1,9 @@
+import typing
 from requests import get
 from pandas import json_normalize
 
 
-def get_elevation(lat=None, long=None):
+def get_elevation(lat: typing.Optional[float] = None, long: typing.Optional[float] = None) -> typing.Optional[float]:
     """
     script for returning elevation in m from lat, long
     """
