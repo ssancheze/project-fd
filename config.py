@@ -13,10 +13,18 @@ win_fullscreen = True
 # WARNING: may produce funky results.
 win_resizable = ""
 
-# Sets the window border
+# Hide window borders
 win_borderless = False
 
 
 # ____ MAP SETTINGS ____
-# Sets whether the map is loaded from the Internet or the local database
+# Load the map using a database in model\maps\
 map_offline_mode = True
+
+
+# ____ RACE SETTINGS ____
+# Displays circuit checkpoints
+race_show_checkpoints = False
+
+
+# ____ AUTOPILOT SETTINGS ____
