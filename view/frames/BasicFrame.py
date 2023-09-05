@@ -75,6 +75,7 @@ class BasicFrame:
             # Center Button
             self.nav_center_button = ttk.Button(self.nav_buttons_frame, text='O')
             self.nav_center_button.pack(padx=10)
+
             self.place_in_grid(self.nav_buttons_frame, (8, 0), (8, 15))
 
     def pack_frame(self, **kwargs):
@@ -90,6 +91,9 @@ class RowFrameRow(BasicFrame):
 
         self.frame.configure(relief='groove', borderwidth=3)
 
+    def pack_forget(self):
+        self.frame.pack_forget()
+
 
 class RowFrame(BasicFrame):
     def __init__(self, master=None, rows=1, label: str = None):
@@ -99,18 +103,30 @@ class RowFrame(BasicFrame):
         self._options_rows_list: typing.List[RowFrameRow] = list()
 
     @property
-    def options_rows_list(self):
+    def rows_list(self):
         return self._options_rows_list
 
-    def add_options_row(self, mode_options_row: RowFrameRow):
+    def add_row(self, mode_options_row: RowFrameRow):
         if len(self._options_rows_list) > self.rows:
             raise IndexError(f'self.options_rows_list try to exceed maximum length')
         else:
             self._options_rows_list.append(mode_options_row)
 
     def pack_rows(self):
-        for row in self.options_rows_list:
+        for row in self.rows_list:
             row.pack_frame(side='top', fill='x')
+
+    def _pack_forger_rows(self):
+        for row in self.rows_list:
+            row.pack_forget()
+
+    def update_rows(self):
+        self._pack_forger_rows()
+        self.pack_rows()
+
+    def reorder_rows(self, rows_new: typing.List[RowFrameRow]):
+        self._options_rows_list = rows_new
+        self.update_rows()
 
 
 class FileDialogFrame:
