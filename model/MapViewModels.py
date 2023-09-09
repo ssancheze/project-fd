@@ -3,16 +3,9 @@ import numpy as np
 
 from model.BasicModel import BasicModel as _BasicModel
 from model.FenceEditor import FenceEditor as _FenceEditor
-from model.FenceClasses import Vertex as _Vertex
-from model.FenceClasses import FenceZone as _FenceZone
-from model.FenceClasses import FenceMap as _FenceMap
-from model.FenceClasses import Checkpoint as _Checkpoint
-from model.RaceClasses import Racer as _Racer
-from model.RaceClasses import Stopwatch as _Stopwatch
-from model.RaceClasses import TrackLength as _TrackLength
-from model.RaceClasses import StartingPoints as _StartingPoints
-from model.tkintermap.MapViewElevationRequest import get_elevation as _get_elevation
-from model.tkintermap.MapViewTileServers import get_tile_server as _get_tile_server
+from model.utils import FenceMap, FenceZone, Checkpoint, Vertex
+from model.maps.MapViewElevationRequest import get_elevation as _get_elevation
+from model.maps.MapViewTileServers import get_tile_server as _get_tile_server
 
 
 class BasicMapViewModel(_BasicModel):
@@ -44,7 +37,7 @@ class FenceLoaderModel(_BasicModel):
         _BasicModel.__init__(self)
 
         self._file_manager: typing.Optional[_FenceEditor] = None
-        self._map: typing.Optional[_FenceMap] = None
+        self._map: typing.Optional[FenceMap] = None
 
     @property
     def map(self):
@@ -55,11 +48,11 @@ class FenceLoaderModel(_BasicModel):
         self._file_manager = _FenceEditor(open_dir)
 
         # New map instance
-        _map = _FenceMap()
+        _map = FenceMap()
 
         # Read and set file's home's coordinates
         _coordinates = self._file_manager.read_home().coordinates
-        _home_vertex = _Vertex(*_coordinates)
+        _home_vertex = Vertex(*_coordinates)
         if not _map.set_home(_home_vertex):
             return False
 
@@ -93,7 +86,7 @@ class FenceEditorModel(FenceLoaderModel):
     def __init__(self):
         FenceLoaderModel.__init__(self)
 
-        self._polygon: typing.Optional[_FenceZone] = None
+        self._polygon: typing.Optional[FenceZone] = None
 
     @property
     def idle_polygon(self):
@@ -106,7 +99,7 @@ class FenceEditorModel(FenceLoaderModel):
         else:
             return False
 
-    def set_home(self, home_vertex: _Vertex):
+    def set_home(self, home_vertex: Vertex):
         self._map.set_home(home_vertex)
 
     def clear_home(self):
@@ -115,7 +108,7 @@ class FenceEditorModel(FenceLoaderModel):
 
     def new_map(self):
         if self._map is None:
-            self._map = _FenceMap()
+            self._map = FenceMap()
             return True
         return False
 
@@ -123,14 +116,14 @@ class FenceEditorModel(FenceLoaderModel):
         if self._polygon is None:
             if self._map:
                 if self._map.exclusion_zone is None or self._map.inclusion_zone is None:
-                    self._polygon = _FenceZone()
+                    self._polygon = FenceZone()
                     return True
             else:
-                self._polygon = _FenceZone()
+                self._polygon = FenceZone()
                 return True
         return False
 
-    def add_vertex(self, vertex: _Vertex):
+    def add_vertex(self, vertex: Vertex):
         if self._polygon is not None:
             if not self._polygon.closed:
                 self._polygon.add_vertex(vertex)
@@ -227,7 +220,7 @@ class FenceCheckpointModel(FenceLoaderModel):
     def __init__(self):
         FenceLoaderModel.__init__(self)
 
-        self._checkpoints: typing.List[_Checkpoint] = []
+        self._checkpoints: typing.List[Checkpoint] = []
 
     @property
     def checkpoints(self):
@@ -251,38 +244,12 @@ class FenceCheckpointModel(FenceLoaderModel):
             _min_index = np.argmin(_distances)
             _a_list: typing.Union[list, object] = _inclusion_vertex_arr.tolist()
             _b_list: typing.Union[list, object] = _exclusion_zone_vertices_array[_min_index].tolist()
-            _a_vertex = _Vertex(_a_list[0], _a_list[1])
-            _b_vertex = _Vertex(_b_list[0], _b_list[1])
-            _checkpoint = _Checkpoint(_a_vertex, _b_vertex)
+            _a_vertex = Vertex(_a_list[0], _a_list[1])
+            _b_vertex = Vertex(_b_list[0], _b_list[1])
+            _checkpoint = Checkpoint(_a_vertex, _b_vertex)
             _checkpoints.append(_checkpoint)
 
         self._checkpoints = _checkpoints
 
     def clear_checkpoints(self):
         self._checkpoints = []
-
-
-class RaceModel(FenceCheckpointModel):
-    def __init__(self):
-        """
-        Race handler
-        """
-        FenceCheckpointModel.__init__(self)
-
-        self._track_length: typing.Optional[_TrackLength] = None
-        self._starting_points: typing.Optional[_StartingPoints] = None
-
-    @property
-    def track_length(self):
-        return self._track_length
-
-    @property
-    def starting_points(self):
-        return self._starting_points
-
-    def create_checkpoints(self):
-        super().create_checkpoints()
-
-        self._track_length = _TrackLength(self.checkpoints)
-
-        self._starting_points = _StartingPoints(self._track_length)

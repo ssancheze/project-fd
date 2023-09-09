@@ -1,18 +1,4 @@
-import time
 import typing
-
-
-# TODO: Move to definitions
-def timeit(func):
-    def wrapper(*args, **kwargs):
-        _start_time = time.perf_counter()
-        _r = func(*args, **kwargs)
-        _end_time = time.perf_counter()
-        _total_time = _end_time - _start_time
-        print(f'Function {func.__name__}{args} {kwargs} Took {_total_time:.4f} seconds')
-        return _r
-
-    return wrapper
 
 
 class FileEditor:

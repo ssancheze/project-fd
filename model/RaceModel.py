@@ -1,7 +1,7 @@
 from typing import Optional
 
 from model.MapViewModels import FenceCheckpointModel
-from dev.utils import TrackLength, StartingPoints
+from model.utils import TrackLength, StartingPoints
 
 
 class RaceModel(FenceCheckpointModel):

@@ -2,7 +2,7 @@ from __future__ import annotations
 import typing
 
 from model.FileEditor import FileEditor
-from model.FenceClasses import FenceZone, Vertex, MissionItem, MavlinkParameters
+from model.utils import MavlinkParameters, FenceZone, MissionItem, Vertex
 
 
 class FenceEditor:
@@ -84,15 +84,6 @@ class FenceEditor:
     def write_header(self):
         _header = MavlinkParameters.FILE_HEADER + '\n'
         self._file_editor.writeline(_header)
-
-    def write_zone(self, zone: typing.List[typing.Tuple[float, float]], zone_type: bool,
-                   overwrite_line: typing.Optional[int] = None):
-        _file_index = self._get_next_index()
-        if _file_index is None:
-            return False
-
-        for ii_index, ii_coord_tuple in enumerate(zone):
-            self._write_waypoint(ii_coord_tuple, _file_index + ii_index, len(zone), ii_index, zone_type, overwrite_line)
 
     def write_fence_zone(self, zone: FenceZone, overwrite_line: typing.Optional[int] = None):
         _file_index = self._get_next_index()
