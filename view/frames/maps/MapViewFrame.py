@@ -2,19 +2,17 @@ import os.path
 import tkintermapview
 
 from view.frames.BasicFrame import BasicFrame
+from view.frames.maps.MapBasicControlFrame import MapBasicControlFrame
 import config
 from definitions import MAPS_DIR, EETAC_COORDINATES
-from view.frames.maps.MapFenceControlsFrame import MapFenceControlsFrame
-from controller.MapViewController import MapViewFrameController
 
 MAP_VIEW_DATABASE_PATH = os.path.join(MAPS_DIR, 'offline_tiles_eetac_gsat.db')
 
 
 class MapViewFrame(BasicFrame):
-    def __init__(self, master=None, controller: MapViewFrameController = None, __controls=None):
+    def __init__(self, master=None, __controls=None):
         super().__init__(master, grid=(2, 1))
         self.frame.rowconfigure(0, weight=8)
-        self.controller = controller
 
         # Map view widget
         if config.map_offline_mode is True:
@@ -32,26 +30,32 @@ class MapViewFrame(BasicFrame):
         self.place_in_grid(self.map_view, (0, 0))
 
         # Map controls frame
-        self.controls_frame = __controls(self.frame, self.map_view, self.controller)
-        self.controls_frame.on_tile_set_change('gsat')
-
-        # End
-        self.place_in_grid(self.controls_frame.frame, (1, 0))
+        if __controls:
+            self.control_frame = __controls(self.frame, self.map_view)
+            self.control_frame.on_tile_set_change('gsat')
+            # End
+            self.place_in_grid(self.control_frame.frame, (1, 0))
+        else:
+            self.control_frame = None
 
         # End
         self.pack_frame()
 
+    def set_control_frame(self, control_frame: type(MapBasicControlFrame), controller):
+        self.control_frame = control_frame(self.frame, self.map_view, controller)
+        self.control_frame.on_tile_set_change('gsat')
+        # End
+        self.place_in_grid(self.control_frame.frame, (1, 0))
+
 
 if __name__ == '__main__':
     from view import MyTk
-    from model.tkintermap.MapViewModel import MapViewFrameModel
+    from view.frames.maps.MapViewControlFrames import MapFenceLoaderControlFrame
 
     def main():
         win = MyTk.Window()
         win.config()
-        map_model = MapViewFrameModel()
-        map_controller = MapViewFrameController(map_model)
-        MapViewFrame(win, map_controller, MapFenceControlsFrame)
+        MapViewFrame(win, MapFenceLoaderControlFrame)
         win.mainloop()
 
     main()
