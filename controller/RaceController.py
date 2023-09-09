@@ -1,7 +1,7 @@
 from controller.MapViewControllers import FenceCheckpointController
-from model.PlayerManager import PlayerManager
-from model.TrackManager import TrackManager
-from model.FlightManager import FlightManager
+from model.managers.PlayerManager import PlayerManager
+from model.managers.TrackManager import TrackManager
+from model.managers.FlightManager import FlightManager
 
 
 class RaceController(FenceCheckpointController):
@@ -23,12 +23,15 @@ class RaceController(FenceCheckpointController):
     def get_players_list(self):
         return self._player_manager.players_list
 
-    def set_all_ready(self):
-        for racer in self._player_manager.players_list:
-            racer.set_ready()
-
     def get_position(self, player_number: int):
         pass
+
+    def get_starting_positions(self):
+        positions = [seeker.starting_point for _, seeker in self._flight_manager.seekers.items()]
+        return positions
+
+    def get_telemetry(self, player_number: int):
+        return self._flight_manager.get_telemetry(player_number)
 
 
 if __name__ == '__main__':
