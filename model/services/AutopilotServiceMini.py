@@ -7,8 +7,8 @@ from math import sqrt
 import paho.mqtt.client
 import json
 
-from model.CommunicationModeHandler import CommunicationModeHandler, MQTTClientHandler
-from model.RaceClasses import Telemetry
+from model.services.CommunicationModeHandler import CommunicationModeHandler, MQTTClientHandler
+from model.utils import Telemetry
 
 _SERVICE_NAME = 'AutopilotServiceMini'
 _TARGET_NAME = 'ProjectFD'
@@ -74,6 +74,9 @@ class AutopilotServiceMini:
         elif _command == 'altHold':
             self.altitude_hold()
 
+        elif _command == 'stabilize':
+            self.stabilize()
+
         elif _command == 'stop':
             self.stop()
 
@@ -104,6 +107,10 @@ class AutopilotServiceMini:
             print(f'Connected to vehicle {self._communication_handler.drone_id}')
         # self.disable_rc_checks()
         self._connected = True
+
+        self.enable_telemetry()
+
+    def enable_telemetry(self):
         self._sending_telemetry = True
         self._telemetry_thread = threading.Thread(target=self.send_telemetry_info)
         self._telemetry_thread.start()
@@ -202,6 +209,9 @@ class AutopilotServiceMini:
     def altitude_hold(self):
         self._vehicle.mode = dronekit.VehicleMode('ALT_HOLD')
 
+    def stabilize(self):
+        self._vehicle.mode = dronekit.VehicleMode('STABILIZE')
+
     def stop(self):
         self._vehicle.mode = dronekit.VehicleMode('BRAKE')
 
@@ -275,12 +285,12 @@ class AutopilotServiceMini:
 
 
 if __name__ == '__main__':
-    import dev.mqtt_debugger
+    import dev.mqtt_debug
 
     def main():
         bar = CommunicationModeHandler(_SERVICE_NAME, 0)
         bar.sim_mode()
         foo = AutopilotServiceMini(bar, verbose=True)
-        dev.mqtt_debugger.Debugger()
+        dev.mqtt_debug.Debugger()
 
     main()

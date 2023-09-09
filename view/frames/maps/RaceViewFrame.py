@@ -45,7 +45,8 @@ class MapRaceControlFrame(MapBasicControlFrame):
         super().__init__(master, map_view)
 
         self.controller = controller
-        self._seeker = None
+        self._race_manager_callback = None
+        self._draw_starting_points = True
 
         # Ready buttons
         self.ready_racers_button = ttk.Button(self.frame, text=f'ALL RACERS READY',
@@ -54,8 +55,11 @@ class MapRaceControlFrame(MapBasicControlFrame):
 
         # Assets
         self._home_marker_icon = tk.PhotoImage(file=join(ASSETS_DIR, 'home_marker_25.png'))
-        self._racer1_icon = tk.PhotoImage(file=join(ASSETS_DIR, 'racer_marker_blue.png'))
-        self._racer2_icon = tk.PhotoImage(file=join(ASSETS_DIR, 'racer_marker_orange.png'))
+        self._player_icons = {}
+        self._player_markers = []
+
+    def hide_starting_points(self):
+        self._draw_starting_points = False
 
     def draw_update(self):
         self.map_view.delete_all_polygon()
@@ -67,7 +71,10 @@ class MapRaceControlFrame(MapBasicControlFrame):
         self.draw_starting_points()
 
     def racer_update(self):
-        self.map_view.delete_all_marker()
+        if self._draw_starting_points:
+            self.erase_racers()
+        else:
+            self.map_view.delete_all_marker()
 
         self.draw_racers()
 
@@ -107,22 +114,37 @@ class MapRaceControlFrame(MapBasicControlFrame):
 
     def draw_starting_points(self):
         # Draw starting points
-        for _ii_starting_point in self.controller.get_starting_points().starting_points:
-            self.map_view.set_marker(*_ii_starting_point.tuple, icon=self._home_marker_icon)
+        starting_points = self.controller.get_starting_positions()
+        for starting_point in starting_points:
+            self.map_view.set_marker(*starting_point.tuple, icon=self._home_marker_icon)
 
     def draw_racers(self):
-        _racers = self.controller.get_players()
-        for _ii_racer in _racers:
-            if _ii_racer.id == 0:
-                _icon = self._racer1_icon
-            else:
-                _icon = self._racer2_icon
-            if _ii_racer.telemetry_info:
-                self.map_view.set_marker(*_ii_racer.telemetry_info.position, icon=_icon, text=_ii_racer.id)
+        for player_number, player in self.controller.get_players().items():
+            telemetry_info = self.controller.get_telemetry(player_number)
+            if telemetry_info:
+                self._player_icons[player_number] = tk.PhotoImage(
+                    file=join(ASSETS_DIR, f'racer_marker_{player.icon_color}.png'))
+
+                racer_marker = self.map_view.set_marker(*telemetry_info.position, icon=self._player_icons[player.id],
+                                                        text=player_number)
+                self._player_markers.append(racer_marker)
+
+    def erase_racers(self):
+        for marker in self._player_markers:
+            marker.delete()
+        self._player_markers = []
+
+    def set_race_manager_callback(self, func):
+        self._race_manager_callback = func
 
     def ready_racers_button_click(self):
-        self.controller.set_all_ready()
+        self._race_manager_callback()
 
 
 if __name__ == '__main__':
-    pass
+    from view.MyTk import Window
+
+    win = Window()
+    win.config()
+    foo = MapViewFrame(win, MapRaceControlFrame)
+    win.mainloop()

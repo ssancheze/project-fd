@@ -1,8 +1,8 @@
 from typing import Dict, Union, List
 
-from dev.utils import Racer
-from model.CommsManager import CommsManager
-from model.CommunicationModeHandler import CommunicationModeHandler
+from model.utils import Racer, Stopwatch, Tracker, Telemetry, Checkpoint
+from model.managers.CommsManager import CommsManager
+from model.services.CommunicationModeHandler import CommunicationModeHandler
 from definitions import APPLICATION_NAME
 
 
@@ -12,6 +12,23 @@ class PlayerManager:
 
         self._communications_manager: CommsManager = communications_manager
         self._communication_handlers: Dict[int, CommunicationModeHandler] = {}
+        self._stopwatches: Dict[int, Stopwatch] = {}
+        self._trackers: Dict[int, Tracker] = {}
+
+    def link_stopwatch(self, player_number: int):
+        self._stopwatches[player_number] = Stopwatch()
+
+        self.players[player_number].set_stopwatch(
+            self._stopwatches[player_number]
+        )
+
+    def link_tracker(self, player_number: int, telemetry_info: Telemetry, checkpoints: List[Checkpoint],
+                     zone_lengths: List[float]):
+        self._trackers[player_number] = Tracker(telemetry_info, checkpoints, zone_lengths)
+
+        self.players[player_number].set_tracker(
+            self._trackers[player_number]
+        )
 
     @property
     def players(self):
@@ -25,8 +42,12 @@ class PlayerManager:
     def communication_handlers(self):
         return self._communication_handlers
 
-    def add_player(self, racer_number: int):
-        self._players[racer_number] = Racer(racer_number)
+    @property
+    def trackers(self):
+        return self._trackers
+
+    def add_player(self, racer_number: int, icon_color: str):
+        self._players[racer_number] = Racer(racer_number, icon_color)
 
     def link_communication_handler(self, racer_number: int, address: Union[str, int, None] = None):
         racer_communication_handler = CommunicationModeHandler(APPLICATION_NAME, racer_number)

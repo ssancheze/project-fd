@@ -12,10 +12,8 @@ def download_database(filepath: str, _server: str,
                       bottom_right: typing.Tuple[float, float],
                       zoom_min: int, zoom_max: int):
     # specify the region to load (New York City)
-    top_left_position = (41.2776207, 1.9806569)
-    bottom_right_position = (41.2732666, 1.9906776)
-    zoom_min = 17
-    zoom_max = 20
+    top_left_position = top_left
+    bottom_right_position = bottom_right
 
     # specify path and name of the database
     _filepath_list = filepath.split('.')

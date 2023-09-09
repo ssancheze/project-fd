@@ -2,12 +2,10 @@ import typing
 import json
 import paho.mqtt.client
 
-from model.CommunicationModeHandler import CommunicationModeHandler, MQTTClientHandler
-from model.RaceClasses import Telemetry
-
-
-_TARGET_NAME = 'AutopilotServiceMini'
-_SERVICE_NAME = 'ProjectFD'
+from model.services.CommunicationModeHandler import CommunicationModeHandler, MQTTClientHandler
+from model.utils import Telemetry
+from model.services.AutopilotServiceMini import AutopilotServiceMini
+from definitions import APPLICATION_NAME, AUTOPILOT_NAME
 
 
 class AutopilotServiceController:
@@ -17,7 +15,7 @@ class AutopilotServiceController:
         self._communication_handler = communication_handler
         self._drone_id = drone_id
 
-        self._mqtt_handler = MQTTClientHandler(_SERVICE_NAME, _TARGET_NAME, self._drone_id)
+        self._mqtt_handler = MQTTClientHandler(APPLICATION_NAME, AUTOPILOT_NAME, self._drone_id)
         self._mqtt_handler.set_external_message_callback(self._on_message)
         self._mqtt_handler.connect_external(**self._communication_handler.external_broker)
         self._mqtt_handler.subscribe_external()
@@ -27,6 +25,11 @@ class AutopilotServiceController:
 
         self._parameter_change_waiting_ack: bool = False
         self._waiting_go_to: bool = False
+
+        self._autopilot_service: typing.Optional[AutopilotServiceMini] = None
+
+        if communication_handler.communication_mode == 'simulation':
+            self.open_autopilot_service()
 
     @property
     def telemetry_info(self):
@@ -43,6 +46,11 @@ class AutopilotServiceController:
     @property
     def waiting_go_to(self):
         return self._waiting_go_to
+
+    def open_autopilot_service(self):
+        communication_mode_handler = CommunicationModeHandler(AUTOPILOT_NAME, self._drone_id)
+        communication_mode_handler.sim_mode()
+        self._autopilot_service = AutopilotServiceMini(communication_mode_handler)
 
     def vehicle_connect(self):
         self._mqtt_handler.publish_external('connect')
@@ -70,6 +78,9 @@ class AutopilotServiceController:
 
     def vehicle_altitude_hold(self):
         self._mqtt_handler.publish_external('altHold')
+
+    def vehicle_stabilize(self):
+        self._mqtt_handler.publish_external('stabilize')
 
     def vehicle_geofence_enable(self):
         self._mqtt_handler.publish_external('geofenceEnable')
