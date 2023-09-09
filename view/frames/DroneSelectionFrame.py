@@ -81,7 +81,7 @@ class DroneCell(RowFrame):
 
         self.drone_id = drone_id
 
-        self.add_options_row(DroneNameRow(self.frame))
+        self.add_row(DroneNameRow(self.frame))
 
 
 # GLOBAL DRONE CELL
@@ -89,7 +89,7 @@ class GlobalDroneCell(DroneCell):
     def __init__(self, master, drone_id: int):
         super().__init__(master, drone_id)
 
-        self.add_options_row(GlobalDroneCellRow(self.frame))
+        self.add_row(GlobalDroneCellRow(self.frame))
 
         self.pack_rows()
 
@@ -99,7 +99,7 @@ class LocalDroneCell(DroneCell):
     def __init__(self, master, drone_id: int):
         super().__init__(master, drone_id)
 
-        self.add_options_row(LocalDroneIpEntryRow(self.frame))
+        self.add_row(LocalDroneIpEntryRow(self.frame))
 
         self.pack_rows()
 
@@ -109,7 +109,7 @@ class DirectDroneCell(DroneCell):
     def __init__(self, master, drone_id: int):
         super().__init__(master, drone_id)
 
-        self.add_options_row(DirectDroneComRow(self.frame))
+        self.add_row(DirectDroneComRow(self.frame))
 
         self.pack_rows()
 
@@ -135,7 +135,7 @@ class DroneNameRow(RowFrameRow):
 
         self.name_entry_var = tk.StringVar()
 
-        self.name_entry_label = ttk.Label(self.frame, text='NAME:')
+        self.name_entry_label = ttk.Label(self.frame, text='NUMBER:')
         self.pack_widget(self.name_entry_label, 'left', 2)
 
         self.name_entry = ttk.Entry(self.frame, textvariable=self.name_entry_var)

@@ -4,13 +4,13 @@ import os.path
 
 from view.frames.BasicFrame import RowFrame, RowFrameRow
 from controller.RaceController import RaceController
-from model.RaceClasses import Racer
-from definitions import ASSETS_DIR, MAX_RACERS
+from model.utils import Racer
+from definitions import ASSETS_DIR, MAX_PLAYERS
 
 
 class RacingRosterFrame(RowFrame):
     def __init__(self, master, race_controller: RaceController):
-        super().__init__(master, rows=MAX_RACERS, label='ORDER')
+        super().__init__(master, rows=MAX_PLAYERS, label='ORDER')
 
         self.controller = race_controller
 
@@ -57,14 +57,19 @@ class PlayerRow(RowFrameRow):
 
 if __name__ == '__main__':
     from view.MyTk import Window
-    from model.MapViewModels import RaceModel
-    from model.RaceClasses import Racer
-    from controller.MapViewControllers import RaceController
+    from model.utils import Racer
+    from controller.RaceController import RaceController
 
     win = Window()
-    my_racers = [Racer(33), Racer(14), Racer(1), Racer(66), Racer(84)]
-    my_model = RaceModel()
-    my_model.set_racers(my_racers)
-    my_controller = RaceController(my_model)
-    y = RacingRosterFrame(win, my_controller)
+
+    """
+    my_comms = CommsManager.CommsManager()
+    my_players = PlayerManager.PlayerManager(my_comms)
+    my_players.add_player(33, 'blue')
+    my_players.add_player(14, 'orange')
+    my_track = TrackManager.TrackManager()
+    my_controller = RaceController(my_players, my_track, None)
+    """
+
+    y = RacingRosterFrame(win, None)
     win.mainloop()

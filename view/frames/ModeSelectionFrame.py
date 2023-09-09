@@ -1,12 +1,16 @@
 import typing
-from view.frames.BasicFrame import BasicFrame
 import tkinter.ttk as ttk
 import tkinter as tk
 
+from view.frames.BasicFrame import BasicFrame
+from controller.FrameControllers import ModeSelectionFrameController
+
 
 class ModeSelectionFrame(BasicFrame):
-    def __init__(self, master=None):
+    def __init__(self, master=None, controller: ModeSelectionFrameController = None):
         super().__init__(master, navigation_buttons=True)
+
+        self.controller = controller
 
         # Title Label
         self.title_label = ttk.Label(self.frame, text='SELECT\nMODE', anchor=tk.CENTER, font=('', 21))
